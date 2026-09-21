@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Event Seat Allocation Engine</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+    <header class="site-header">
+        <div class="container">
+            <span class="brand">Seat Allocation Engine</span>
+        </div>
+    </header>
+
+    <main class="container">
+        <section class="intro">
+            <h1>Event Seat Allocation Engine</h1>
+            <p>
+                Upload your registration list, choose how many seats the event has, and get a
+                confirmed list and a waitlist. Seats are given strictly first come, first served,
+                based on each person's registration timestamp.
+            </p>
+        </section>
+
+        <p class="alert" th:if="${error}" th:text="${error}">Error message</p>
+
+        <form class="panel" th:action="@{/allocate}" method="post" enctype="multipart/form-data">
+            <div class="field">
+                <label for="cap">Seat capacity</label>
+                <input type="number" id="cap" name="cap" min="1" th:value="${cap}" required>
+            </div>
+
+            <div class="field">
+                <label for="file">Registrations CSV</label>
+                <input type="file" id="file" name="file" accept=".csv,text/csv">
+                <p class="hint">Leave this empty to try the built-in sample list of 10 students.</p>
+            </div>
+
+            <button type="submit" class="button">Allocate seats</button>
+        </form>
+
+        <section class="panel">
+            <h2>CSV format</h2>
+            <p>The file needs a header row with these three columns:</p>
+<pre class="code">name,email,timestamp
+Sheema Shariq,sheema25@jmi.ac.in,2026-08-18 09:12:00
+Priya Singh,priya@jmi.ac.in,2026-08-18 09:45:00</pre>
+            <p class="hint">Timestamps use the format <strong>yyyy-MM-dd HH:mm:ss</strong>. Rows can be in any order.</p>
+        </section>
+
+        <section class="panel">
+            <h2>How it works</h2>
+            <p>
+                Every registration goes into a min-heap ordered by timestamp, so the earliest one is
+                always at the top. Registrations are then taken off the heap one by one: the first
+                ones fill the available seats and everyone after that joins the waitlist.
+            </p>
+            <table class="complexity">
+                <thead>
+                    <tr><th>Operation</th><th>Cost</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td>Insert one registration</td><td>O(log n)</td></tr>
+                    <tr><td>Remove earliest registration</td><td>O(log n)</td></tr>
+                    <tr><td>Whole allocation</td><td>O(n log n)</td></tr>
+                    <tr><td>Memory</td><td>O(n)</td></tr>
+                </tbody>
+            </table>
+        </section>
+    </main>
+
+    <footer class="site-footer">
+        <div class="container">Built with Spring Boot, Thymeleaf, HTML and CSS.</div>
+    </footer>
+</body>
+</html>

@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Seat Allocation Summary</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+    <header class="site-header">
+        <div class="container">
+            <a class="brand" th:href="@{/}">Seat Allocation Engine</a>
+        </div>
+    </header>
+
+    <main class="container">
+        <section class="intro">
+            <h1>Seat Allocation Summary</h1>
+            <p>Source: <strong th:text="${source}">input.csv</strong></p>
+        </section>
+
+        <section class="stats">
+            <div class="stat">
+                <span class="stat-label">Seat capacity</span>
+                <span class="stat-value" th:text="${result.seatCapacity}">5</span>
+            </div>
+            <div class="stat">
+                <span class="stat-label">Total registered</span>
+                <span class="stat-value" th:text="${result.total}">10</span>
+            </div>
+            <div class="stat stat-confirmed">
+                <span class="stat-label">Confirmed</span>
+                <span class="stat-value" th:text="${result.confirmed.size()}">5</span>
+            </div>
+            <div class="stat stat-waitlist">
+                <span class="stat-label">Waitlisted</span>
+                <span class="stat-value" th:text="${result.waitlist.size()}">5</span>
+            </div>
+        </section>
+
+        <section class="panel highlights">
+            <p th:if="${result.firstConfirmed != null}">
+                <span class="highlight-label">First seat &rarr;</span>
+                <strong th:text="${result.firstConfirmed.name}">Name</strong>
+                (<span th:text="${result.firstConfirmed.formattedTimestamp}">time</span>)
+            </p>
+            <p th:if="${result.firstWaitlisted != null}">
+                <span class="highlight-label">First waitlist &rarr;</span>
+                <strong th:text="${result.firstWaitlisted.name}">Name</strong>
+                (<span th:text="${result.firstWaitlisted.formattedTimestamp}">time</span>)
+            </p>
+            <p th:if="${result.firstWaitlisted == null}" class="hint">
+                Everyone got a seat, so nobody is on the waitlist.
+            </p>
+        </section>
+
+        <section class="panel">
+            <h2>Attendee manifest</h2>
+            <div class="table-wrap">
+                <table class="manifest">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Timestamp</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="person, row : ${result.confirmed}">
+                            <td th:text="${row.count}">1</td>
+                            <td th:text="${person.name}">Name</td>
+                            <td th:text="${person.email}">email</td>
+                            <td th:text="${person.formattedTimestamp}">time</td>
+                            <td><span class="badge badge-confirmed">Confirmed</span></td>
+                        </tr>
+                        <tr th:each="person, row : ${result.waitlist}">
+                            <td th:text="${result.confirmed.size() + row.count}">6</td>
+                            <td th:text="${person.name}">Name</td>
+                            <td th:text="${person.email}">email</td>
+                            <td th:text="${person.formattedTimestamp}">time</td>
+                            <td><span class="badge badge-waitlist">Waitlist</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="actions">
+                <a class="button" th:href="@{/manifest.csv}">Download output.csv</a>
+                <a class="button button-secondary" th:href="@{/}">Run again</a>
+            </div>
+        </section>
+    </main>
+
+    <footer class="site-footer">
+        <div class="container">Built with Spring Boot, Thymeleaf, HTML and CSS.</div>
+    </footer>
+</body>
+</html>
